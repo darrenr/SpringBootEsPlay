@@ -1,9 +1,17 @@
 package demotwo;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
+import org.elasticsearch.index.query.FuzzyLikeThisFieldQueryBuilder;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SearchQuery;
 
 @SpringBootApplication
 public class DemotwoApplication {
@@ -26,4 +34,23 @@ public class DemotwoApplication {
     		
     	};
     }
+    
+	@Bean
+	CommandLineRunner example(MovieRepository movieRepo, ElasticsearchTemplate template) {
+		return (args) -> {
+			System.err.println("zzzzzzz this works zzzzzzzzzzzzzzzzzzzzzzzz");
+		
+			movieRepo.findByTitleIgnoringCase("The").forEach(System.err::println);
+			
+			System.err.println("zzzzzz another way zzzzzzzzzzzzz");
+			
+			SearchQuery query = new NativeSearchQueryBuilder().withQuery(
+				 fuzzyLikeThisFieldQuery("director").likeText("tarantula")).build();
+			template.queryForList(query, Movie.class).forEach(System.err::println);
+			
+			
+			
+		};
+
+	}
 }
